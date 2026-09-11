@@ -138,7 +138,7 @@ Backend **GitHub + Render** üzerinden yayınlanmıştır.
 Hassas bilgiler environment variables üzerinden yönetilmektedir.
 
 >  **Güvenlik Notu:** API anahtarları GitHub üzerinde paylaşılmamalı ve `.env` dosyası repository içerisinde bulunmamalıdır.
-## 📊 Sistem Akışı
+##  Sistem Akışı
 
 ### AI Asistan Akışı
 
