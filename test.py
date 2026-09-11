@@ -1,8 +1,17 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from groq import Groq
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 app = Flask(__name__)
 CORS(app)
+
+
 
 @app.route("/")
 def ana_sayfa():
@@ -42,8 +51,22 @@ def sohbet():
     data = request.get_json()
     soru = data.get("soru", "")
 
+    cevap = client.chat.completions.create(
+        model="openai/gpt-oss-120b",
+        messages=[
+            {
+                "role": "system",
+                "content": "Sen ZK Studio Architecture & Design için çalışan bir yapay zeka asistanısın. Mimarlık, iç mimarlık, tasarım ve ZK Studio hizmetleri hakkında profesyonel ve anlaşılır cevaplar ver."
+            },
+            {
+                "role": "user",
+                "content": soru
+            }
+        ]
+    )
+
     return jsonify({
-        "cevap": f"Sorunuz alındı: {soru}"
+        "cevap": cevap.choices[0].message.content
     })
 
 
