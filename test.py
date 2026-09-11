@@ -11,11 +11,20 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 app = Flask(__name__)
 CORS(app)
 
+# Lead kayıtları
+leads = []
 
 
 @app.route("/")
 def ana_sayfa():
     return "ZK Studio Python servisi çalışıyor!"
+
+
+@app.route("/health")
+def health():
+    return jsonify({
+        "status": "ok"
+    })
 
 
 @app.route("/hakkimda")
@@ -70,5 +79,42 @@ def sohbet():
     })
 
 
+# Lead kaydetme
+@app.route("/api/leads", methods=["POST"])
+def lead_ekle():
+    data = request.get_json()
+
+    isim = data.get("isim", "")
+    telefon = data.get("telefon", "")
+    notu = data.get("not", "")
+
+    if not isim or not telefon:
+        return jsonify({
+            "hata": "İsim ve telefon zorunludur."
+        }), 400
+
+    yeni_lead = {
+        "_id": str(len(leads) + 1),
+        "isim": isim,
+        "telefon": telefon,
+        "not": notu
+    }
+
+    leads.append(yeni_lead)
+
+    return jsonify({
+        "mesaj": "Lead başarıyla kaydedildi.",
+        "lead": yeni_lead
+    }), 201
+
+
+# Lead listesini getir
+@app.route("/api/leads", methods=["GET"])
+def leadleri_getir():
+    return jsonify(leads)
+
+
 if __name__ == "__main__":
     app.run(debug=True)
+
+    
