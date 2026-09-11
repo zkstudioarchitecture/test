@@ -58,7 +58,7 @@ def ara():
 @app.route("/api/sohbet", methods=["POST"])
 def sohbet():
     data = request.get_json()
-    soru = data.get("soru", "")
+    soru = data.get("mesaj", "")
 
     cevap = client.chat.completions.create(
         model="openai/gpt-oss-120b",
@@ -115,6 +115,6 @@ def leadleri_getir():
 
 
 if __name__ == "__main__":
+
     app.run(debug=True)
 
-    
