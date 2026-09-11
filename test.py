@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
-
+CORS(app)
 
 @app.route("/")
 def ana_sayfa():
@@ -36,6 +37,15 @@ def ara():
     })
 
 
+@app.route("/api/sohbet", methods=["POST"])
+def sohbet():
+    data = request.get_json()
+    soru = data.get("soru", "")
+
+    return jsonify({
+        "cevap": f"Sorunuz alındı: {soru}"
+    })
+
+
 if __name__ == "__main__":
     app.run(debug=True)
-    
