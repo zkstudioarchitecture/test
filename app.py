@@ -10,7 +10,6 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-# Groq API
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY")
 )
@@ -43,37 +42,31 @@ def sohbet():
                 "hata": "Mesaj boş olamaz."
             }), 400
 
-        print("Gelen mesaj:", mesaj)
+        print("GELEN MESAJ:", mesaj)
 
-        response = client.chat.completions.create(
-
-            model="llama-3.3-70b-versatile",
+        cevap = client.chat.completions.create(
+            model="openai/gpt-oss-120b",
 
             messages=[
                 {
                     "role": "system",
                     "content": """
-Sen ZK Studio Architecture & Design'in
-web sitesinde çalışan AI asistansın.
+Sen ZK Studio Architecture & Design web sitesinin
+AI asistanısın.
 
 ZK Studio; mimarlık, iç mimarlık,
-ulaşım ve kentsel tasarım, 3D görselleştirme
-ve mimari yarışma projeleri üzerine çalışan
-bir tasarım stüdyosudur.
+ulaşım ve kentsel tasarım,
+3D görselleştirme ve mimari yarışma
+projeleri üzerine çalışan bir tasarım stüdyosudur.
 
-Kullanıcılara ZK Studio hakkında,
-mimarlık, tasarım, projeler ve hizmetler
-konusunda yardımcı ol.
+Kullanıcılara Türkçe ve doğal cevaplar ver.
 
-Cevaplarını Türkçe ver.
-
-Kullanıcının sorduğu soruya doğrudan cevap ver.
+Kullanıcının sorusuna doğrudan cevap ver.
 Her soruya aynı cevabı verme.
 
-Bilmediğin bir konuda bilgi uydurma.
+ZK Studio hakkında bilmediğin bilgileri uydurma.
 """
                 },
-
                 {
                     "role": "user",
                     "content": mesaj
@@ -81,25 +74,24 @@ Bilmediğin bir konuda bilgi uydurma.
             ],
 
             temperature=0.7,
-
             max_tokens=500
         )
 
-        cevap = response.choices[0].message.content
+        cevap_metni = cevap.choices[0].message.content
 
-        print("Groq cevabı:", cevap)
+        print("GROQ CEVABI:", cevap_metni)
 
         return jsonify({
-            "cevap": cevap
+            "cevap": cevap_metni
         }), 200
 
 
     except Exception as error:
 
-        print("HATA:", error)
+        print("GROQ HATASI:", repr(error))
 
         return jsonify({
-            "hata": "AI yanıtı oluşturulurken bir hata oluştu."
+            "hata": str(error)
         }), 500
 
 
