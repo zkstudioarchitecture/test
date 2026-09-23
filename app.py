@@ -23,19 +23,25 @@ def home():
     })
 
 
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({
+        "status": "ok"
+    })
+
+
 @app.route("/api/sohbet", methods=["POST"])
 def sohbet():
 
     try:
-
-        data = request.get_json()
+        data = request.get_json(silent=True)
 
         if not data:
             return jsonify({
-                "hata": "Veri gönderilmedi."
+                "hata": "JSON verisi alınamadı."
             }), 400
 
-        mesaj = data.get("mesaj", "").strip()
+        mesaj = str(data.get("mesaj", "")).strip()
 
         if not mesaj:
             return jsonify({
@@ -44,28 +50,25 @@ def sohbet():
 
         print("GELEN MESAJ:", mesaj)
 
-        cevap = client.chat.completions.create(
+        response = client.chat.completions.create(
             model="openai/gpt-oss-120b",
 
             messages=[
                 {
                     "role": "system",
-                    "content": """
-Sen ZK Studio Architecture & Design web sitesinin
-AI asistanısın.
-
-ZK Studio; mimarlık, iç mimarlık,
-ulaşım ve kentsel tasarım,
-3D görselleştirme ve mimari yarışma
-projeleri üzerine çalışan bir tasarım stüdyosudur.
-
-Kullanıcılara Türkçe ve doğal cevaplar ver.
-
-Kullanıcının sorusuna doğrudan cevap ver.
-Her soruya aynı cevabı verme.
-
-ZK Studio hakkında bilmediğin bilgileri uydurma.
-"""
+                    "content": (
+                        "Sen ZK Studio Architecture & Design "
+                        "web sitesinin yapay zeka asistanısın. "
+                        "ZK Studio; mimarlık, iç mimarlık, "
+                        "ulaşım ve kentsel tasarım, "
+                        "3D görselleştirme ve mimari yarışma "
+                        "projeleri üzerine çalışan bir tasarım "
+                        "stüdyosudur. "
+                        "Kullanıcılara Türkçe ve doğal cevaplar ver. "
+                        "Sorulan soruya doğrudan cevap ver. "
+                        "Her soruya aynı cevabı verme. "
+                        "ZK Studio hakkında bilmediğin bilgileri uydurma."
+                    )
                 },
                 {
                     "role": "user",
@@ -74,21 +77,21 @@ ZK Studio hakkında bilmediğin bilgileri uydurma.
             ],
 
             temperature=0.7,
-            max_tokens=500
+            max_completion_tokens=500
         )
 
-        cevap_metni = cevap.choices[0].message.content
+        cevap = response.choices[0].message.content
 
-        print("GROQ CEVABI:", cevap_metni)
+        print("GROQ CEVABI:", cevap)
 
         return jsonify({
-            "cevap": cevap_metni
+            "cevap": cevap
         }), 200
-
 
     except Exception as error:
 
-        print("GROQ HATASI:", repr(error))
+        print("HATA TIPI:", type(error).__name__)
+        print("HATA:", repr(error))
 
         return jsonify({
             "hata": str(error)
